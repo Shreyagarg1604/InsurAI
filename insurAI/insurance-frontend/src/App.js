@@ -36,6 +36,7 @@
 // }
 //---------------------------2nd--------------
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { NotificationProvider } from "./components/NotificationContext";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Policies from "./pages/Policies";
@@ -50,6 +51,7 @@ import AppointmentHistory from "./pages/AppointmentHistory";
 
 export default function App() {
   return (
+    <NotificationProvider>
     <BrowserRouter>
       <Navbar />
       <div className="container mt-3">
@@ -85,5 +87,6 @@ export default function App() {
         </Routes>
       </div>
     </BrowserRouter>
+    </NotificationProvider>
   );
 }
