@@ -211,6 +211,7 @@ export function NotificationProvider({ children }) {
 
     const reminderTime = new Date(`${appointment.date}T${appointment.time}`);
     reminderTime.setHours(reminderTime.getHours() - 24); // 24 hours before
+    // reminderTime.setMinutes(reminderTime.getMinutes() - 1); // 1 minute before - FOR TESTING
 
     const now = new Date();
     const delay = reminderTime.getTime() - now.getTime();
