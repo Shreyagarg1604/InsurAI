@@ -206,21 +206,42 @@
 
 
 
-//==========================================3rd=============
 
+
+
+
+//==================4th=========
 import "./Appointment.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useNotification } from "../components/NotificationContext";
 
 export default function Appointment() {
   const navigate = useNavigate();
-  const { showNotification } = useNotification();
+  const [user, setUser] = useState(null);
   const [form, setForm] = useState({
-    name: "", email: "", phone: "", policy: "", date: "", time: ""
+    name: "",
+    email: "",
+    phone: "",
+    policy: "",
+    date: "",
+    time: "",
   });
 
-  const [success, setSuccess] = useState(false); // Keep your original state
+  const [success, setSuccess] = useState(false);
+
+  // Load user data when component mounts
+  useEffect(() => {
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (loggedInUser) {
+      setUser(loggedInUser);
+      setForm(prevForm => ({
+        ...prevForm,
+        name: loggedInUser.name,
+        email: loggedInUser.email,
+        phone: loggedInUser.phone || ""
+      }));
+    }
+  }, []);
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -229,16 +250,36 @@ export default function Appointment() {
   function handleSubmit(e) {
     e.preventDefault();
 
+    // Get previous appointments
     const existingAppointments = JSON.parse(localStorage.getItem("appointments")) || [];
+
+    // Push new one
     existingAppointments.push(form);
+
+    // Save updated list
     localStorage.setItem("appointments", JSON.stringify(existingAppointments));
 
-    setSuccess(true); // Keep your original flow
-    showNotification(`Appointment confirmed for ${form.policy}! 🎉`, "success");
+    setSuccess(true);
 
     setTimeout(() => {
       navigate("/dashboard");
     }, 1500);
+  }
+
+  if (!user) {
+    return (
+      <div className="appointment-bg d-flex align-items-center">
+        <div className="appointment-card shadow-lg text-center p-4">
+          <h3>Please login to book an appointment.</h3>
+          <button 
+            className="btn btn-primary mt-3"
+            onClick={() => navigate('/login')}
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -256,27 +297,34 @@ export default function Appointment() {
               name="name"
               className="form-control mb-3"
               placeholder="Full Name"
+              value={form.name}
               onChange={handleChange}
               required
             />
+
             <input
               name="email"
               className="form-control mb-3"
               placeholder="Email"
               type="email"
+              value={form.email}
               onChange={handleChange}
               required
             />
+
             <input
               name="phone"
               className="form-control mb-3"
               placeholder="Phone Number"
+              value={form.phone}
               onChange={handleChange}
               required
             />
+
             <select
               name="policy"
               className="form-control mb-3"
+              value={form.policy}
               onChange={handleChange}
               required
             >
@@ -285,24 +333,26 @@ export default function Appointment() {
               <option value="Life Insurance">Life Insurance</option>
               <option value="Vehicle Insurance">Vehicle Insurance</option>
             </select>
+
             <input
               name="date"
               className="form-control mb-3"
               type="date"
+              value={form.date}
               onChange={handleChange}
               required
             />
+
             <input
               name="time"
               className="form-control mb-3"
               type="time"
+              value={form.time}
               onChange={handleChange}
               required
             />
-            
-            <button className="btn btn-primary w-100">
-              Confirm Appointment
-            </button>
+
+            <button className="btn btn-primary w-100">Confirm Appointment</button>
           </form>
         )}
       </div>
