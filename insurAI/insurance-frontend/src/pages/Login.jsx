@@ -232,10 +232,94 @@
 
 
 //==========================4th==============
+// import "./Login.css";
+// import { useNavigate } from "react-router-dom";
+// import { useState } from "react";
+// import { useNotification } from "../components/NotificationContext";
+
+// export default function Login() {
+//   const navigate = useNavigate();
+//   const { showNotification } = useNotification();
+//   const [form, setForm] = useState({ email: "", password: "" });
+
+//   function handleChange(e) {
+//     setForm({ ...form, [e.target.name]: e.target.value });
+//   }
+
+//   function handleLogin(e) {
+//     e.preventDefault();
+
+//     // Get all registered users
+//     const users = JSON.parse(localStorage.getItem("users")) || [];
+
+//     // Find matching user
+//     const matchedUser = users.find(
+//       (u) => u.email === form.email && u.password === form.password
+//     );
+
+//     if (matchedUser) {
+//       // Save logged-in user
+//       localStorage.setItem("loggedInUser", JSON.stringify(matchedUser));
+      
+//       showNotification(`Welcome ${matchedUser.name}!`, "success");
+//       navigate("/dashboard");
+//     } else {
+//       showNotification("Invalid email or password!", "error");
+//     }
+//   }
+
+//   return (
+//     <div className="login-bg d-flex align-items-center">
+//       <div className="login-card shadow-lg">
+//         <h2 className="fw-bold text-center mb-4">Welcome Back</h2>
+
+//         <form onSubmit={handleLogin}>
+//           <input
+//             name="email"
+//             value={form.email}
+//             onChange={handleChange}
+//             className="form-control mb-3"
+//             placeholder="Email"
+//             type="email"
+//             required
+//           />
+
+//           <input
+//             name="password"
+//             value={form.password}
+//             onChange={handleChange}
+//             className="form-control mb-3"
+//             placeholder="Password"
+//             type="password"
+//             required
+//           />
+
+//           <button className="btn btn-primary w-100">Login</button>
+//         </form>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+//==============after backend=====================
+// src/pages/Login.jsx
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useNotification } from "../components/NotificationContext";
+import { API_URL } from "../config";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -246,25 +330,32 @@ export default function Login() {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  function handleLogin(e) {
+  async function handleLogin(e) {
     e.preventDefault();
 
-    // Get all registered users
-    const users = JSON.parse(localStorage.getItem("users")) || [];
+    try {
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    // Find matching user
-    const matchedUser = users.find(
-      (u) => u.email === form.email && u.password === form.password
-    );
+      if (!res.ok) {
+        const msg = await res.text();
+        showNotification(msg || "Invalid email or password!", "error");
+        return;
+      }
 
-    if (matchedUser) {
-      // Save logged-in user
-      localStorage.setItem("loggedInUser", JSON.stringify(matchedUser));
-      
-      showNotification(`Welcome ${matchedUser.name}!`, "success");
+      const user = await res.json();
+
+      // FRONTEND ka behaviour same: loggedInUser localStorage me
+      localStorage.setItem("loggedInUser", JSON.stringify(user));
+
+      showNotification(`Welcome ${user.name}!`, "success");
       navigate("/dashboard");
-    } else {
-      showNotification("Invalid email or password!", "error");
+    } catch (err) {
+      console.error(err);
+      showNotification("Server error! Please try again.", "error");
     }
   }
 

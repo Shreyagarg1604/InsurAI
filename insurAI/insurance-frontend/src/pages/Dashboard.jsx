@@ -401,7 +401,7 @@ export default function Dashboard() {
             className="btn btn-secondary" 
             onClick={() => navigate('/appointments')}
           >
-            View All Appointments ({appointments.length})
+            View All Appointments 
           </button>
 
           <button 
